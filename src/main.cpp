@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
+#include <vector>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -43,8 +44,9 @@ private:
     }
 
     void cleanup() {
-        glfwDestroyWindow(window);
+        vkDestroyInstance(instance, nullptr);
 
+        glfwDestroyWindow(window);
         glfwTerminate();
     }
 
@@ -70,6 +72,19 @@ private:
         create_info.ppEnabledExtensionNames = glfwExtensions;
 
         create_info.enabledLayerCount = 0;
+
+        ///Print Extensions
+        /*
+        uint32_t extension_count = 0;
+        vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, nullptr);
+        std::vector<VkExtensionProperties> extensions(extension_count);
+        vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, extensions.data());
+
+        std::cout << "available extensions:\n";
+
+        for (const auto& extension : extensions) {
+            std::cout << '\t' << extension.extensionName << "\n";
+        }*/
 
         if (vkCreateInstance(&create_info, nullptr, &instance) != VK_SUCCESS) {
             throw::std::runtime_error("failed to create instance!");
