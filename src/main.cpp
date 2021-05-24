@@ -11,7 +11,7 @@ const uint32_t HEIGHT = 600;
 
 const char* APP_NAME = "Hello Triangle";
 
-class HelloTriangleApplication {
+class Application {
 public:
     void run() {
         init_window();
@@ -63,13 +63,13 @@ private:
         create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         create_info.pApplicationInfo = &app_info;
 
-        uint32_t glfwExtensionCount = 0;
-        const char** glfwExtensions;
+        uint32_t glfw_extension_count = 0;
+        const char** glfw_extensions;
 
-        glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+        glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 
-        create_info.enabledExtensionCount = glfwExtensionCount;
-        create_info.ppEnabledExtensionNames = glfwExtensions;
+        create_info.enabledExtensionCount = glfw_extension_count;
+        create_info.ppEnabledExtensionNames = glfw_extensions;
 
         create_info.enabledLayerCount = 0;
 
@@ -93,7 +93,7 @@ private:
 };
 
 int main() {
-    HelloTriangleApplication app;
+    Application app;
 
     try {
         app.run();
