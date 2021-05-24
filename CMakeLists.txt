@@ -13,9 +13,12 @@ set(headers
 
 add_executable(${PROJECT_NAME} ${src} ${headers})
 
-target_include_directories(${PROJECT_NAME} PUBLIC C:/VulkanSDK/1.2.176.1/Include)
-target_link_directories(${PROJECT_NAME} PRIVATE C:/VulkanSDK/1.2.176.1/Lib)
-target_link_libraries(${PROJECT_NAME} C:/VulkanSDK/1.2.176.1/Lib/vulkan-1.lib)
+find_package(Vulkan)
+
+if (Vulkan_FOUND)
+    target_include_directories(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
+    target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
+endif()
 
 add_subdirectory(vendor/glfw)
 
