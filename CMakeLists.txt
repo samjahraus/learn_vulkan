@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20.0)
 
-project(vulkan_test)
+project(learn_vulkan)
 
 set(HAVE_LIBC TRUE)
 set(src
