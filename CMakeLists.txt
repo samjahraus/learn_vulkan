@@ -13,6 +13,8 @@ set(headers
 
 add_executable(${PROJECT_NAME} ${src} ${headers})
 
+target_compile_features(learn_vulkan PUBLIC cxx_std_17)
+
 find_package(Vulkan)
 
 if (Vulkan_FOUND)
