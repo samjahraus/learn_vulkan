@@ -7,4 +7,4 @@ learn_vulkan is a simple Vulkan project that is following the [Khronos Group Vul
 - git clone --recurse-submodules https://github.com/sjjahraus/learn_vulkan
 - use cmake to generate project/make files and build for your chosen platform.
 
->Note: Project requires the Vulkan SDK and if using a Unix system, you'll need DOXYGEN to run glfw window manager.
+>Note: Project requires the Vulkan SDK to be installed on your system.
