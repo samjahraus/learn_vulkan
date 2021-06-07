@@ -1,39 +1,34 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.10)
 
 project(learn_vulkan)
 
-set(HAVE_LIBC TRUE)
-set(src
-    "src/main.cpp"
-)
+set(CMAKE_DEBUG_POSTFIX d)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 
-set(headers
+foreach (OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${PROJECT_BINARY_DIR}/bin)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${PROJECT_BINARY_DIR}/bin)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${PROJECT_BINARY_DIR}/lib)
+endforeach()
 
-)
+set (CMAKE_CXX_STANDARD 17)
 
-add_executable(${PROJECT_NAME} ${src} ${headers})
+find_package(Vulkan REQUIRED)
 
-target_compile_features(learn_vulkan PUBLIC cxx_std_17)
+IF (NOT Vulkan_FOUND)
+    message(FATAL_ERROR "Could not find Vulkan library!")
+ELSE()
+    message(STATUS ${Vulkan_LIBRARY})
+ENDIF()
 
-find_package(Vulkan)
-
-if (Vulkan_FOUND)
-    target_include_directories(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
-    target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
-endif()
+set(MAIN_PROJECT "Sandbox")
 
 add_subdirectory(vendor/glfw)
-
 add_subdirectory(vendor/glm)
+#add_subdirectory(assets)
+add_subdirectory(src)
 
-target_include_directories(${PROJECT_NAME}
-    PUBLIC vendor/glfw/include
-    PUBLIC vendor/glm)
-
-target_link_directories(${PROJECT_NAME} 
-    PRIVATE vendor/glfw/src
-    PRIVATE vendor/glm)
-
-target_link_libraries(${PROJECT_NAME}
-    glfw
-    glm)
+set_property (DIRECTORY PROPERTY VS_STARTUP_PROJECT ${MAIN_PROJECT})

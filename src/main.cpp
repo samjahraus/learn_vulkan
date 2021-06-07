@@ -10,6 +10,7 @@
 #include <set>
 #include <cstdint>
 #include <algorithm>
+#include <fstream>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -114,6 +115,7 @@ private:
         create_logical_device();
         create_swap_chain();
         create_image_views();
+        //create_graphics_pipeline();
     }
 
     void main_loop() {
@@ -366,6 +368,45 @@ private:
         }
     }
 
+    void create_graphics_pipeline() {
+        auto vert_shader_code = read_file("shaders/vert.spv");
+        auto frag_shader_code = read_file("shaders/frag.spv");
+
+        VkShaderModule vert_shader_module = create_shader_module(vert_shader_code);
+        VkShaderModule frag_shader_module = create_shader_module(frag_shader_code);
+
+        VkPipelineShaderStageCreateInfo vert_shader_stage_info{};
+        vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        vert_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+        vert_shader_stage_info.module = vert_shader_module;
+        vert_shader_stage_info.pName = "main";
+
+        VkPipelineShaderStageCreateInfo frag_shader_stage_info{};
+        frag_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        frag_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+        frag_shader_stage_info.module = frag_shader_module;
+        frag_shader_stage_info.pName = "main";
+
+        VkPipelineShaderStageCreateInfo shader_stages[] = {vert_shader_stage_info, frag_shader_stage_info};
+
+        vkDestroyShaderModule(device, vert_shader_module, nullptr); 
+        vkDestroyShaderModule(device, frag_shader_module, nullptr);
+    }
+
+    VkShaderModule create_shader_module(const std::vector<char>& code) {
+        VkShaderModuleCreateInfo create_info{};
+        create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+        create_info.codeSize = code.size();
+        create_info.pCode = reinterpret_cast<const uint32_t*>(code.data());
+
+        VkShaderModule shader_module;
+        if (vkCreateShaderModule(device, &create_info, nullptr, &shader_module) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create shader module!");
+        }
+
+        return shader_module;
+    }
+
     VkSurfaceFormatKHR choose_swap_chain_format(const std::vector<VkSurfaceFormatKHR> &available_formats) {
         for (const auto& available_format : available_formats) {
             if (available_format.format == VK_FORMAT_B8G8R8A8_SRGB && available_format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
@@ -528,6 +569,24 @@ private:
         }
 
         return true;
+    }
+
+    static std::vector<char> read_file(const std::string& filename) {
+        std::ifstream file(filename, std::ios::ate | std::ios::binary);
+
+        if (!file.is_open()) {
+            throw std::runtime_error("failed to read file!");
+        }
+
+        size_t file_size = (size_t) file.tellg();
+        std::vector<char> buffer(file_size);
+
+        file.seekg(0);
+        file.read(buffer.data(), file_size);
+
+        file.close();
+        
+        return buffer;
     }
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
