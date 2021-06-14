@@ -27,7 +27,7 @@ set(MAIN_PROJECT "Sandbox")
 
 add_subdirectory(vendor/glfw)
 add_subdirectory(vendor/glm)
-#add_subdirectory(assets)
+add_subdirectory(assets)
 add_subdirectory(src)
 
 set_property (DIRECTORY PROPERTY VS_STARTUP_PROJECT ${MAIN_PROJECT})

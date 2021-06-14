@@ -14,3 +14,5 @@ add_executable(${exe_name}
 target_include_directories(${exe_name} PRIVATE . ${Vulkan_INCLUDE_DIRS} vendor/glfw/include vendor/glm)
 target_link_directories(${exe_name} PRIVATE ${Vulkan_LIBRARY} vendor/glfw/src vendor/glm)
 target_link_libraries(${exe_name} PRIVATE glfw glm ${Vulkan_LIBRARIES} ${extra_libs})
+
+add_dependencies(${exe_name} Assets)

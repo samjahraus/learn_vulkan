@@ -11,7 +11,6 @@ cd build
 cd windows
 
 msbuild learn_vulkan.sln /t:Rebuild /p:Configuration=Debug
-
 cd ..
 cd ..
 pause
