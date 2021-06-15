@@ -106,6 +106,9 @@ private:
     VkCommandPool command_pool;
     std::vector<VkCommandBuffer> command_buffers;
 
+    VkSemaphore image_available_semaphores;
+    VkSemaphore render_finished_semaphores;
+
     void init_window() {
         glfwInit();
 
@@ -128,15 +131,37 @@ private:
         create_framebuffers();
         create_command_pool();
         create_command_buffers();
+        create_semaphores();
     }
 
     void main_loop() {
+
+        double previousTime = glfwGetTime();
+        uint32_t frame_count = 0;
+
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
+
+            double current_time = glfwGetTime();
+            frame_count++;
+
+            if (current_time - previousTime >= 1.0) {
+                std::cout << "fps: " << frame_count << "\n";
+
+                frame_count = 0;
+                previousTime = current_time;
+            }
+
+            draw_frame();
         }
+
+        vkDeviceWaitIdle(device);
     }
 
     void cleanup() {
+        vkDestroySemaphore(device, render_finished_semaphores, nullptr);
+        vkDestroySemaphore(device, image_available_semaphores, nullptr);
+
         vkDestroyCommandPool(device, command_pool, nullptr);
 
         for (auto framebuffer : swap_chain_framebuffers) {
@@ -410,12 +435,22 @@ private:
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments = &color_attachment_ref;
 
+        VkSubpassDependency dependency {};
+        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependency.dstSubpass = 0;
+        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.srcAccessMask = 0;
+        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
         VkRenderPassCreateInfo render_pass_info {};
         render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
         render_pass_info.attachmentCount = 1;
         render_pass_info.pAttachments = &color_attachment;
         render_pass_info.subpassCount = 1;
         render_pass_info.pSubpasses = &subpass;
+        render_pass_info.dependencyCount = 1;
+        render_pass_info.pDependencies = &dependency;
 
         if (vkCreateRenderPass(device, &render_pass_info, nullptr, &render_pass) != VK_SUCCESS) {
             throw std::runtime_error("failed to create render pass!");
@@ -636,6 +671,57 @@ private:
                 throw std::runtime_error("failed to record command buffer!");
             }
         }
+    }
+
+    void create_semaphores() {
+        VkSemaphoreCreateInfo semaphore_info {};
+        semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        if (vkCreateSemaphore(device, &semaphore_info, nullptr, &image_available_semaphores) != VK_SUCCESS ||
+            vkCreateSemaphore(device, &semaphore_info, nullptr, &render_finished_semaphores) != VK_SUCCESS) {
+
+            throw std::runtime_error("failed to create semaphores!");
+        }
+    }
+
+    void draw_frame() {
+        uint32_t image_index;
+        vkAcquireNextImageKHR(device, swap_chain, UINT64_MAX, image_available_semaphores, VK_NULL_HANDLE, &image_index);
+
+        VkSubmitInfo submit_info {};
+        submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+        VkSemaphore wait_semaphores[] = {image_available_semaphores};
+        VkPipelineStageFlags wait_stages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+        submit_info.waitSemaphoreCount = 1;
+        submit_info.pWaitSemaphores = wait_semaphores;
+        submit_info.pWaitDstStageMask = wait_stages;
+        submit_info.commandBufferCount = 1;
+        submit_info.pCommandBuffers = &command_buffers[image_index];
+
+        VkSemaphore signal_semaphores[] = {render_finished_semaphores};
+        submit_info.signalSemaphoreCount = 1;
+        submit_info.pSignalSemaphores = signal_semaphores;
+
+        if (vkQueueSubmit(graphics_queue, 1, &submit_info, VK_NULL_HANDLE) != VK_SUCCESS) {
+            throw std::runtime_error("failed to submit draw command buffer!");   
+        }
+
+        VkPresentInfoKHR present_info {};
+        present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+        present_info.waitSemaphoreCount = 1;
+        present_info.pWaitSemaphores = signal_semaphores;
+
+        VkSwapchainKHR swap_chains[] = {swap_chain};
+        present_info.swapchainCount = 1;
+        present_info.pSwapchains = swap_chains;
+        present_info.pImageIndices = &image_index;
+        present_info.pResults = nullptr;
+
+        vkQueuePresentKHR(present_queue, &present_info);\
+
+        vkQueueWaitIdle(present_queue); //TODO: Use frames in flight instead to best utilise gpu;
     }
 
     VkShaderModule create_shader_module(const std::vector<char>& code) {
