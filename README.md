@@ -4,6 +4,7 @@
 learn_vulkan is a simple Vulkan project that is following the [Khronos Group Vulkan Tutorial](https://vulkan-tutorial.com/). It's made to be cross platform using cmake.
 
 ### Demo
+#### (This runs at about 6400FPS on my 10900k CPU and 1660S GPU)
 ![](hello_triangle.PNG)
 
 ### Project Setup

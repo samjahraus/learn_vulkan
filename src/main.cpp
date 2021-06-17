@@ -145,19 +145,18 @@ private:
         uint32_t frame_count = 0;
 
         while (!glfwWindowShouldClose(window)) {
+                        double current_time = glfwGetTime();
             glfwPollEvents();
 
-            double current_time = glfwGetTime();
+            draw_frame();
+
             frame_count++;
 
             if (current_time - previousTime >= 1.0) {
-                std::cout << "fps: " << frame_count << "\n";
-
+                std::cout << "fps: " << (frame_count) << "\n";
                 frame_count = 0;
                 previousTime = current_time;
             }
-
-            draw_frame();
         }
 
         vkDeviceWaitIdle(device);
