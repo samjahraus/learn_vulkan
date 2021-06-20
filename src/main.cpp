@@ -3,6 +3,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -21,7 +23,7 @@ const uint32_t HEIGHT = 600;
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
-const char* APP_NAME = "Hello Triangle";
+const char* APP_NAME = "Hello Vulkan";
 
 const std::vector<const char*> validation_layers = {
     "VK_LAYER_KHRONOS_validation"
@@ -178,7 +180,7 @@ private:
         glfwSetWindowUserPointer(window, this);
         glfwSetFramebufferSizeCallback(window, framebuffer_resize_callback);
 
-        /*
+        
         GLFWimage icon;
         icon.pixels = stbi_load("../assets/textures/Vulkan.png", &icon.width, &icon.height, nullptr, 4);
 
@@ -188,7 +190,7 @@ private:
         }
 
         glfwSetWindowIcon(window, 1, &icon);
-        stbi_image_free(icon.pixels);*/
+        stbi_image_free(icon.pixels);
     }
 
     static void framebuffer_resize_callback(GLFWwindow* window, int width, int height) {

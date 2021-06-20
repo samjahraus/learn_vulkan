@@ -16,6 +16,7 @@ endforeach()
 set (CMAKE_CXX_STANDARD 17)
 
 find_package(Vulkan REQUIRED)
+find_path(STB_INCLUDE_DIRS "stb.h")
 
 IF (NOT Vulkan_FOUND)
     message(FATAL_ERROR "Could not find Vulkan library!")
