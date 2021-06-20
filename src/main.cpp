@@ -1,7 +1,7 @@
-#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
+#define VOLK_IMPLEMENTATION
+#define VK_NO_PROTOTYPES
+#include <volk.h>
 
-#define GLFW_INCLUDE_VULKAN
-#include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
@@ -201,11 +201,22 @@ private:
     }
 
     void init_vulkan() {
+
+        if (volkInitialize() != VK_SUCCESS) {
+            throw std::runtime_error("failed to initialize volk!");
+        }
+
         create_instance();
+
+        volkLoadInstance(instance);
+
         setup_debug_messenger();
         create_surface();
         pick_physical_device();
         create_logical_device();
+
+        volkLoadDevice(device);
+
         create_swap_chain();
         create_image_views();
         create_render_pass();

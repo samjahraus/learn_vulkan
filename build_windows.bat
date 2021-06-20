@@ -7,7 +7,7 @@ cmake -S . -B ./build/windows -D VCPKG_TARGET_TRIPLET=x64-windows-static -D CMAK
 cd build
 cd windows
 
-msbuild learn_vulkan.sln /t:Rebuild /p:Configuration=Release
+msbuild learn_vulkan.sln /t:Rebuild /p:Configuration=Debug
 
 cd ..
 cd ..
