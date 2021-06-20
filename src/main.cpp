@@ -47,22 +47,24 @@ VkResult create_debug_utils_messenger_ext(
     const VkAllocationCallbacks* p_allocator,
     VkDebugUtilsMessengerEXT* p_debug_messenger) {
 
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+    /*auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
     if (func != nullptr) {
         return func(instance, p_create_info, p_allocator, p_debug_messenger);
     } else {
         return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }*/
+    if (vkCreateDebugUtilsMessengerEXT(instance, p_create_info, p_allocator, p_debug_messenger) != VK_SUCCESS) {
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
+
+    return VK_SUCCESS;
 }
 
 void destroy_debug_utils_messenger_ext(VkInstance instance,
     VkDebugUtilsMessengerEXT debug_messenger,
     const VkAllocationCallbacks* p_allocator) {
 
-        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-        if (func != nullptr) {
-            func(instance, debug_messenger, p_allocator);
-        }
+    vkDestroyDebugUtilsMessengerEXT(instance, debug_messenger, p_allocator);
 }
 
 struct QueueFamilyIndices {
@@ -176,7 +178,7 @@ private:
         glfwInit();
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        //glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
         window = glfwCreateWindow(WIDTH, HEIGHT, APP_NAME, nullptr, nullptr);
         glfwSetWindowUserPointer(window, this);
